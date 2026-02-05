@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Safety Map | Neural Nexus</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f8f9fa;
+    }
+
+    #safetyMap {
+      height: 500px;
+      width: 100%;
+      border-radius: 12px;
+    }
+
+    .map-card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      margin: 40px auto;
+      max-width: 900px;
+    }
+
+    .legend {
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+
+    .legend span {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      margin-right: 6px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+
+  <nav class="navbar navbar-dark bg-dark p-2">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">🏠 Home</a>
+    </div>
+  </nav>
+
+  <div class="container map-card">
+    <h2 class="mb-3">Hyderabad Tourist Safety Map</h2>
+    <div id="safetyMap"></div>
+    <div class="legend">
+      <p><span style="background:red"></span> High-Risk</p>
+      <p><span style="background:orange"></span> Medium-Risk</p>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('safetyMap').setView([17.3850, 78.4867], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    const zones = [
+      { coords: [17.3616, 78.4747], color: 'red', name: 'Charminar — High Risk of Theft' },
+      { coords: [17.4435, 78.3772], color: 'orange', name: 'Hitech City — Medium Risk of Scams' },
+      { coords: [17.3753, 78.4019], color: 'red', name: 'Golconda Fort — High Risk of Mugging' }
+    ];
+
+    zones.forEach(zone => {
+      L.circle(zone.coords, {
+        color: zone.color,
+        radius: 300,
+        fillOpacity: 0.5
+      }).addTo(map).bindPopup(zone.name);
+    });
+  </script>
+
+</body>
+
+</html>

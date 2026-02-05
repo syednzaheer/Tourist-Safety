@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Detection | Tourist Safety System</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-100: #f3f6f9;
+      --navy-800: #0b2545;
+      --emerald-500: #12a36c;
+      --emerald-600: #0e8b57;
+      --anomaly-red: #dc3545;
+      --glass-white: rgba(255, 255, 255, 0.92);
+      --soft-border: rgba(11, 37, 69, 0.06);
+      --card-shadow: rgba(10, 25, 40, 0.12);
+      --radius-lg: 14px;
+      --trans-fast: 260ms;
+    }
+
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(180deg, var(--bg-100) 0%, #eef3f7 100%);
+      color: #0f1720;
+      line-height: 1.45;
+    }
+
+    a {
+      text-decoration: none !important;
+      color: inherit;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    /* Navbar */
+
+    .navbar {
+      background: linear-gradient(90deg, var(--navy-800), #153a5f);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      box-shadow: 0 6px 18px rgba(8, 24, 45, 0.12);
+      padding: .6rem 1rem;
+    }
+
+    .navbar .navbar-brand {
+      font-weight: 600;
+      letter-spacing: .2px;
+      color: #e9f5f0;
+    }
+
+    /* Center Card */
+
+    .ai-box {
+      background: linear-gradient(180deg, var(--glass-white), rgba(255, 255, 255, 0.86));
+      max-width: 500px;
+      margin: 60px auto;
+      padding: 36px;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 12px 32px var(--card-shadow);
+      text-align: center;
+      transition: transform var(--trans-fast), box-shadow var(--trans-fast);
+    }
+
+    .ai-box:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 20px 40px rgba(11, 34, 68, 0.14);
+    }
+
+    /* Inputs & Buttons */
+
+    input {
+      width: 85%;
+      padding: 14px;
+      margin-top: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--soft-border);
+      outline: none;
+      transition: all var(--trans-fast);
+    }
+
+    input:focus {
+      border-color: var(--emerald-500);
+      box-shadow: 0 0 0 2px rgba(18, 163, 108, 0.25);
+    }
+
+    button {
+      margin-top: 18px;
+      padding: 12px 28px;
+      background: var(--emerald-500);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all var(--trans-fast);
+    }
+
+    button:hover {
+      background: var(--emerald-600);
+    }
+
+    /* Results */
+
+    .result {
+      margin-top: 20px;
+      font-size: 1.15rem;
+      font-weight: 600;
+      transition: color var(--trans-fast);
+    }
+
+    .normal {
+      color: var(--emerald-500);
+    }
+
+    .anomaly {
+      color: var(--anomaly-red);
+    }
+
+    .explanation {
+      margin-top: 26px;
+      font-size: .95rem;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    /* Entrance Animation */
+
+    .ai-box {
+      animation: appearUp .44s cubic-bezier(.2, .9, .2, 1) both;
+    }
+
+    @keyframes appearUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+        filter: blur(.5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    @media(max-width:576px) {
+      .ai-box {
+        padding: 28px;
+        margin: 40px 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+
+  <nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">🏠 Home</a>
+    </div>
+  </nav>
+
+  <!-- Main AI Card -->
+
+  <div class="ai-box">
+    <h2 class="mb-2">🤖 AI Anomaly Detection</h2>
+    <p class="text-muted">Enter a value between <strong>1 and 5</strong> to check if it falls within the safe range.</p>
+
+    <input type="number" id="inputValue" placeholder="Enter value (1–5)">
+    <button onclick="detectSafety()">Check Status</button>
+
+    <div id="result" class="result"></div>
+
+    <p class="explanation">
+      ℹ️ <strong>What is an anomaly?</strong><br>
+      A deviation from expected or normal behavior.<br><br>
+      Example:<br>
+      If a tourist says they'll stay within 5 km but suddenly moves 10 km away,
+      the system flags it as an anomaly to ensure quick response.
+    </p>
+  </div>
+
+  <script>
+    function detectSafety() {
+      const value = parseFloat(document.getElementById("inputValue").value);
+      const resultDiv = document.getElementById("result");
+
+      if (isNaN(value)) {
+        resultDiv.textContent = "⚠️ Please enter a valid number.";
+        resultDiv.className = "result anomaly";
+        return;
+      }
+
+      if (value >= 1 && value <= 5) {
+        resultDiv.textContent = "🟢 Normal — within safe range.";
+        resultDiv.className = "result normal";
+      } else {
+        resultDiv.textContent = "🔴 Anomaly detected — outside safe range.";
+        resultDiv.className = "result anomaly";
+      }
+    }
+  </script>
+
+</body>
+
+</html>

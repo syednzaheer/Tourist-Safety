@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tourist Digital ID Application | Neural Nexus</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --emerald-500: #12a36c;
+      --emerald-600: #0e8b57;
+      --danger: #dc3545;
+      --soft-border: rgba(0, 0, 0, 0.06);
+      --card-shadow: rgba(0, 0, 0, 0.12);
+      --radius-lg: 14px;
+      --trans-fast: 260ms;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(180deg, #f8f9fa, #eef3f7);
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: linear-gradient(90deg, #0b2545, #153a5f);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      box-shadow: 0 6px 18px rgba(8, 24, 45, 0.12);
+    }
+
+    .navbar .navbar-brand {
+      font-weight: 600;
+      color: #e9f5f0;
+      letter-spacing: .2px;
+    }
+
+    /* Form Card */
+    .form-card {
+      max-width: 650px;
+      margin: 40px auto;
+      padding: 30px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.90));
+      box-shadow: 0 12px 28px var(--card-shadow);
+      transition: transform var(--trans-fast), box-shadow var(--trans-fast);
+      animation: appearUp .44s cubic-bezier(.2, .9, .2, 1) both;
+    }
+
+    .form-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.14);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 15px;
+      font-weight: 600;
+      color: #0b2545;
+    }
+
+    p.subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    /* Inputs & Buttons */
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border: 1px solid var(--soft-border);
+      border-radius: var(--radius-lg);
+      font-size: 14px;
+      transition: all var(--trans-fast);
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--emerald-500);
+      box-shadow: 0 0 0 2px rgba(18, 163, 108, 0.15);
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background: var(--emerald-500);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-lg);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--trans-fast);
+    }
+
+    button:hover {
+      background: var(--emerald-600);
+    }
+
+    /* Preview ID Card */
+    #idCard {
+      display: none;
+      max-width: 400px;
+      margin: 40px auto;
+      padding: 25px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.90));
+      box-shadow: 0 12px 28px var(--card-shadow);
+      text-align: center;
+      animation: appearUp .44s cubic-bezier(.2, .9, .2, 1) both;
+    }
+
+    #idCard img {
+      margin-top: 15px;
+      border-radius: 8px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    }
+
+    #idCard p {
+      margin: 6px 0;
+      font-size: 14px;
+      color: #0f1720;
+    }
+
+    /* Animations */
+    @keyframes appearUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">🏠 Home</a>
+    </div>
+  </nav>
+
+  <!-- Form Card -->
+  <div class="form-card">
+    <h2>Tourist Digital ID / QR Band Application</h2>
+    <p class="subtitle">Fill this form to generate your temporary Tourist ID for your trip.</p>
+
+    <form id="touristForm">
+      <!-- Personal Details -->
+      <div class="mb-3">
+        <label for="fullName">Full Name:</label>
+        <input type="text" id="fullName" name="fullName" required>
+      </div>
+      <div class="mb-3">
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob" name="dob" required>
+      </div>
+      <div class="mb-3">
+        <label for="nationality">Nationality:</label>
+        <input type="text" id="nationality" name="nationality" required>
+      </div>
+      <div class="mb-3">
+        <label for="idType">ID Proof Type (Passport / Aadhaar):</label>
+        <input type="text" id="idType" name="idType" required>
+      </div>
+      <div class="mb-3">
+        <label for="idNumber">ID Number:</label>
+        <input type="text" id="idNumber" name="idNumber" required>
+      </div>
+      <div class="mb-3">
+        <label for="arrivalDate">Arrival Date:</label>
+        <input type="date" id="arrivalDate" name="arrivalDate" required>
+      </div>
+      <div class="mb-3">
+        <label for="departureDate">Departure Date:</label>
+        <input type="date" id="departureDate" name="departureDate" required>
+      </div>
+      <div class="mb-3">
+        <label for="itinerary">Trip Itinerary (Cities / Places):</label>
+        <textarea id="itinerary" name="itinerary" rows="3" required></textarea>
+      </div>
+      <div class="mb-3">
+        <label for="accommodation">Accommodation Details (Hotel / Homestay):</label>
+        <input type="text" id="accommodation" name="accommodation" required>
+      </div>
+      <div class="mb-3">
+        <label for="emergencyName">Emergency Contact Name:</label>
+        <input type="text" id="emergencyName" name="emergencyName" required>
+      </div>
+      <div class="mb-3">
+        <label for="emergencyPhone">Emergency Contact Number:</label>
+        <input type="tel" id="emergencyPhone" name="emergencyPhone" required>
+      </div>
+      <div class="mb-3">
+        <label for="relationship">Relationship:</label>
+        <input type="text" id="relationship" name="relationship">
+      </div>
+      <div class="mb-3">
+        <label for="tracking">Allow Real-Time Location Tracking:</label>
+        <select id="tracking" name="tracking">
+          <option value="yes">Yes</option>
+          <option value="no" selected>No</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="language">Preferred Language:</label>
+        <select id="language" name="language">
+          <option value="english" selected>English</option>
+          <option value="hindi">हिन्दी</option>
+          <option value="bengali">বাংলা</option>
+          <option value="tamil">தமிழ்</option>
+          <option value="telugu">తెలుగు</option>
+          <option value="marathi">मराठी</option>
+          <option value="gujarati">ગુજરાતી</option>
+          <option value="kannada">ಕನ್ನಡ</option>
+          <option value="malayalam">മലയാളം</option>
+          <option value="oriya">ଓଡ଼ିଆ</option>
+          <option value="punjabi">ਪੰਜਾਬੀ</option>
+        </select>
+      </div>
+      <button type="submit">Submit Application</button>
+    </form>
+  </div>
+
+  <!-- Tourist ID Preview -->
+
+  <div id="idCard">
+    <h3>Tourist Digital ID</h3>
+    <p><strong>Name:</strong> <span id="previewName"></span></p>
+    <p><strong>Nationality:</strong> <span id="previewNationality"></span></p>
+    <p><strong>Trip:</strong> <span id="previewTrip"></span></p>
+    <p><strong>Emergency Contact:</strong> <span id="previewEmergency"></span></p>
+    <p><strong>Validity:</strong> <span id="previewValidity"></span></p>
+    <p><strong>Txn:</strong> <span id="previewTxn"></span></p>
+    <p><strong>Safety Score:</strong> <span id="previewScore"></span></p>
+    <img id="previewQR" src="" alt="QR Code">
+  </div>
+
+  <script>
+
+    // Form Submission Handler
+
+    document.getElementById("touristForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const name = document.getElementById("fullName").value.trim();
+      const nationality = document.getElementById("nationality").value.trim();
+      const itinerary = document.getElementById("itinerary").value.trim();
+      const emergency = document.getElementById("emergencyName").value.trim() + " (" + document.getElementById("emergencyPhone").value.trim() + ")";
+      const arrival = document.getElementById("arrivalDate").value;
+      const departure = document.getElementById("departureDate").value;
+      const idType = document.getElementById("idType").value.trim();
+      const idNumber = document.getElementById("idNumber").value.trim();
+      const accommodation = document.getElementById("accommodation").value.trim();
+      const tracking = document.getElementById("tracking").value;
+
+      function randHex(len) { let s = ''; const hex = '0123456789abcdef'; for (let i = 0; i < len; i++) s += hex[Math.floor(Math.random() * hex.length)]; return s; }
+      const txn = '0x' + randHex(8) + '-' + Date.now().toString(36);
+
+      let score = 90;
+      const lower = itinerary.toLowerCase();
+      const riskyKeywords = ['charminar', 'golconda', 'old city', 'police', 'unsafe', 'unsafe zone', 'forest', 'cave'];
+      riskyKeywords.forEach(k => { if (lower.includes(k)) score -= 20; });
+      if (tracking === 'no') score -= 10;
+      score = Math.max(30, score);
+
+      const idObj = { name, nationality, itinerary, emergency, arrival, departure, idType, idNumber, accommodation, tracking, issuedAt: new Date().toISOString(), txn, safetyScore: score };
+      const arr = JSON.parse(localStorage.getItem('touristIDs') || '[]');
+      arr.push(idObj);
+      localStorage.setItem('touristIDs', JSON.stringify(arr));
+
+      document.getElementById('previewName').innerText = name;
+      document.getElementById('previewNationality').innerText = nationality;
+      document.getElementById('previewTrip').innerText = itinerary;
+      document.getElementById('previewEmergency').innerText = emergency;
+      document.getElementById('previewValidity').innerText = arrival + ' → ' + departure;
+      document.getElementById('previewTxn').innerText = txn;
+      document.getElementById('previewScore').innerText = score + '/100';
+      document.getElementById('previewQR').src = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent('TouristID:' + txn);
+      document.getElementById('idCard').style.display = 'block';
+
+      const alerts = JSON.parse(localStorage.getItem('alerts') || '[]');
+      alerts.unshift({ type: 'issuance', time: new Date().toISOString(), name, txn, note: 'Digital ID issued (mock blockchain)' });
+      localStorage.setItem('alerts', JSON.stringify(alerts));
+
+      alert('Tourist ID issued (demo). Blockchain Txn: ' + txn);
+      window.dispatchEvent(new Event('storage'));
+    });
+  </script>
+
+</body>
+
+</html>

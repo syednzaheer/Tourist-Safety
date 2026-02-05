@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tourist Safety System 2025 | Neural Nexus</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Theme Palette */
+
+    :root {
+      --bg-100: #f3f6f9;
+      --navy-900: #07132a;
+      --navy-800: #0b2545;
+      --emerald-500: #12a36c;
+      --emerald-600: #0e8b57;
+      --glass-white: rgba(255, 255, 255, 0.92);
+      --muted-700: #596174;
+      --card-shadow: rgba(10, 25, 40, 0.12);
+      --soft-border: rgba(11, 37, 69, 0.06);
+      --radius-lg: 14px;
+      --trans-fast: 260ms;
+    }
+
+    /* Base & Typography */
+
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(180deg, var(--bg-100) 0%, #eef3f7 100%);
+      color: #0f1720;
+      line-height: 1.45;
+    }
+
+    a {
+      text-decoration: none !important;
+      color: inherit;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    /* Navbar */
+
+    .navbar {
+      background: linear-gradient(90deg, var(--navy-800), #153a5f);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      box-shadow: 0 6px 18px rgba(8, 24, 45, 0.12);
+      padding: .6rem 1rem;
+    }
+
+    .navbar .navbar-brand {
+      font-weight: 600;
+      letter-spacing: .2px;
+      color: #e9f5f0;
+    }
+
+    .btn.btn-dark {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #eaf6ee;
+      padding: .45rem .7rem;
+      border-radius: 10px;
+      transition: transform var(--trans-fast), background var(--trans-fast), box-shadow var(--trans-fast);
+      backdrop-filter: blur(2px);
+    }
+
+    .btn.btn-dark:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 18px rgba(12, 31, 60, 0.18);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    #langSelect {
+      border-radius: 10px;
+      padding: .35rem .6rem;
+      border: 1px solid rgba(15, 20, 30, 0.06);
+      background: rgba(255, 255, 255, 0.96);
+      min-width: 110px;
+      font-weight: 500;
+    }
+
+    /* Sidebar */
+
+    .sidebar {
+      height: 100%;
+      width: 0;
+      position: fixed;
+      z-index: 1100;
+      top: 0;
+      left: 0;
+      background: linear-gradient(180deg, rgba(7, 19, 28, 0.98), rgba(7, 25, 39, 0.98));
+      overflow-x: hidden;
+      transition: width .35s ease;
+      padding-top: 68px;
+      border-right: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .sidebar a {
+      padding: 12px 30px;
+      font-size: 18px;
+      color: #eaf6f1;
+      display: block;
+      transition: .25s;
+      font-weight: 600;
+    }
+
+    .sidebar a:hover {
+      background: linear-gradient(90deg, rgba(18, 163, 108, 0.06), rgba(255, 255, 255, 0.02));
+      color: #fff;
+    }
+
+    .sidebar .closebtn {
+      position: absolute;
+      top: 12px;
+      right: 18px;
+      font-size: 34px;
+      color: #fff;
+      transition: .2s;
+    }
+
+    #main {
+      transition: margin-left .35s ease;
+      position: relative;
+      z-index: 100;
+    }
+
+    /* Header */
+
+    .custom-header {
+      margin: 18px auto 0;
+      max-width: 1200px;
+      padding: 48px 28px;
+      background: linear-gradient(135deg, rgba(17, 36, 60, 0.98), rgba(13, 57, 85, 0.96));
+      color: #fff;
+      border-radius: calc(var(--radius-lg)+2px);
+      box-shadow: 0 18px 50px rgba(8, 24, 45, 0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .custom-header::after {
+      content: '';
+      position: absolute;
+      right: -120px;
+      top: -60px;
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle at 20% 30%, rgba(18, 163, 108, 0.12), transparent 30%);
+      transform: rotate(12deg);
+      filter: blur(20px);
+      pointer-events: none;
+    }
+
+    .custom-header h1 {
+      font-size: 1.9rem;
+      margin: 0 0 .25rem 0;
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+
+    .custom-header p {
+      margin: 0;
+      opacity: .95;
+      font-weight: 500;
+      color: rgba(235, 248, 242, 0.95);
+    }
+
+    /* Safety Badge */
+
+    .safety-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: 8px 18px;
+      margin-top: 14px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, var(--emerald-500), var(--emerald-600));
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 8px 24px rgba(16, 80, 52, 0.12);
+      transform-origin: center;
+      transition: transform var(--trans-fast), box-shadow var(--trans-fast);
+    }
+
+    .safety-badge:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 16px 36px rgba(16, 80, 52, 0.14);
+    }
+
+    /* Cards */
+
+    .card {
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, var(--glass-white), rgba(255, 255, 255, 0.86));
+      border: 1px solid var(--soft-border);
+      box-shadow: 0 8px 28px var(--card-shadow);
+      transition: transform var(--trans-fast), box-shadow var(--trans-fast), background var(--trans-fast);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 88px;
+      font-weight: 600;
+      color: #0f1720;
+      text-align: center;
+    }
+
+    .card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(11, 34, 68, 0.14);
+      background: linear-gradient(180deg, #ffffff, #fbfdff);
+    }
+
+    section .card {
+      min-height: 130px;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    section .card h5 {
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: var(--navy-900);
+    }
+
+    .step-text {
+      color: var(--muted-700);
+      font-weight: 500;
+      opacity: .9;
+      padding: 0 6px;
+    }
+
+    /* Footer */
+
+    footer {
+      margin-top: 48px;
+      padding: 18px 0;
+      color: #d8eae1;
+      background: linear-gradient(180deg, rgba(11, 20, 30, 0.95), rgba(9, 18, 26, 0.95));
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      box-shadow: 0 -6px 24px rgba(6, 12, 20, 0.08);
+      font-weight: 500;
+    }
+
+    /* Animations */
+
+    header,
+    main {
+      animation: appearUp .44s cubic-bezier(.2, .9, .2, 1) both;
+    }
+
+    @keyframes appearUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+        filter: blur(.5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    @media(max-width:768px) {
+      .custom-header {
+        padding: 34px 18px;
+        border-radius: 12px
+      }
+
+      .safety-badge {
+        padding: 7px 14px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="mySidebar" class="sidebar">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+    <a href="form.html">📑 Application Form</a>
+    <a href="id.html">🆔 Digital ID</a>
+    <a href="map.html">🗺 Safety Map</a>
+    <a href="sos.html">🚨 Emergency</a>
+    <a href="report.html">📝 Report</a>
+    <a href="bdtourist.html">📊 My Dashboard</a>
+    <a href="iot.html">📡 IoT Band</a>
+    <a href="tips.html">🌍 AI Translator</a>
+    <a href="dbtourist.html">👮 Police Dashboard</a>
+    <a href="AI.html">🤖 AI Detection</a>
+    <a href="languages.html">🌐 Languages</a>
+    <a href="about.html">ℹ️ About</a>
+  </div>
+
+  <div id="main">
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="container-fluid">
+        <button class="btn btn-dark" onclick="openNav()">☰ Menu</button>
+        <span class="navbar-brand ms-3">Tourist Safety 2025</span>
+        <select id="langSelect" class="form-select w-auto ms-3" style="width:auto">
+          <option value="en" selected>English</option>
+          <option value="hi">हिन्दी</option>
+        </select>
+      </div>
+    </nav>
+
+    <header class="custom-header text-center py-5">
+      <h1 id="mainTitle">Smart Tourist Safety System</h1>
+      <p id="mainDesc">A Smart Prototype by <strong>Neural Nexus</strong></p>
+      <div class="safety-badge" id="globalBadge">Safety Score: -- /100</div>
+    </header>
+
+    <main class="container py-5">
+      <div class="row g-4">
+        <div class="col-md-3 col-6"><a href="form.html" class="card p-3 text-center shadow-sm">📑 Application Form</a>
+        </div>
+        <div class="col-md-3 col-6"><a href="id.html" class="card p-3 text-center shadow-sm">🆔 Digital ID</a></div>
+        <div class="col-md-3 col-6"><a href="map.html" class="card p-3 text-center shadow-sm">🗺 Safety Map</a></div>
+        <div class="col-md-3 col-6"><a href="sos.html" class="card p-3 text-center shadow-sm">🚨 Emergency</a></div>
+        <div class="col-md-3 col-6"><a href="report.html" class="card p-3 text-center shadow-sm">📝 Report</a></div>
+        <div class="col-md-3 col-6"><a href="bdtourist.html" class="card p-3 text-center shadow-sm">📊 My Dashboard</a>
+        </div>
+        <div class="col-md-3 col-6"><a href="iot.html" class="card p-3 text-center shadow-sm">📡 IoT Band</a></div>
+        <div class="col-md-3 col-6"><a href="tips.html" class="card p-3 text-center shadow-sm">🌍 AI Translator</a>
+        </div>
+        <div class="col-md-3 col-6"><a href="dbpolice.html" class="card p-3 text-center shadow-sm">👮 Police
+            Dashboard</a></div>
+        <div class="col-md-3 col-6"><a href="AI.html" class="card p-3 text-center shadow-sm">🤖 AI Detection</a></div>
+        <div class="col-md-3 col-6"><a href="languages.html" class="card p-3 text-center shadow-sm">🌐 Languages</a>
+        </div>
+        <div class="col-md-3 col-6"><a href="about.html" class="card p-3 text-center shadow-sm">ℹ About</a></div>
+      </div>
+
+      <section class="mt-5">
+        <h2 class="text-center mb-4" id="howTitle">How This Works</h2>
+        <div class="row text-center">
+          <div class="col-md-4 mb-3">
+            <div class="card shadow-sm p-3">
+              <h5>Step 1</h5>
+              <p class="step-text">Get a digital ID when you arrive in the locality.</p>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="card shadow-sm p-3">
+              <h5>Step 2</h5>
+              <p class="step-text">Check the map to see which areas are safe or risky.</p>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="card shadow-sm p-3">
+              <h5>Step 3</h5>
+              <p class="step-text">If something goes wrong, hit the SOS button to get help.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="text-center">
+      <p id="footerText">Tourist Safety System 2025 | <strong>Neural Nexus</strong></p>
+    </footer>
+  </div>
+
+  <script>
+    function openNav() { document.getElementById("mySidebar").style.width = "250px"; document.getElementById("main").style.marginLeft = "250px" }
+    function closeNav() { document.getElementById("mySidebar").style.width = "0"; document.getElementById("main").style.marginLeft = "0" }
+
+    const translations = {
+      en: { mainTitle: "Smart Tourist Safety System", mainDesc: "A Smart Prototype by Neural Nexus for SIH 2025 (Problem ID: 25002).", howTitle: "How This Works", footer: "Tourist Safety System 2025 | Neural Nexus", steps: ["Get a digital ID when you arrive in the locality.", "Check the map to see which areas are safe or risky.", "If something goes wrong, hit the SOS button to get help."] },
+      hi: { mainTitle: "स्मार्ट टूरिस्ट सुरक्षा प्रणाली", mainDesc: "छात्र प्रोटोटाइप - हैदराबाद (SIH25002).", howTitle: "यह कैसे काम करता है", footer: "पर्यटक सुरक्षा प्रणाली 2025 | न्यूरल नेक्सस", steps: ["स्थान पर पहुँचने पर डिजिटल आईडी प्राप्त करें।", "मानचित्र देखें कि कौन से क्षेत्र सुरक्षित या जोखिमपूर्ण हैं।", "अगर कुछ गलत हो, तो मदद पाने के लिए SOS दबाएँ।"] }
+    };
+    document.getElementById('langSelect').addEventListener('change', function () {
+      const t = translations[this.value];
+      document.getElementById('mainTitle').innerText = t.mainTitle;
+      document.getElementById('mainDesc').innerText = t.mainDesc;
+      document.getElementById('howTitle').innerText = t.howTitle;
+      document.getElementById('footerText').innerText = t.footer;
+      document.querySelectorAll(".step-text").forEach((el, i) => el.innerText = t.steps[i]);
+    });
+
+    function computeGlobalBadge() {
+      try {
+        const alerts = JSON.parse(localStorage.getItem('alerts') || '[]');
+        const tickets = alerts.filter(a => a.type === 'sos' || a.type === 'anomaly').length;
+        let score = Math.max(50, 95 - tickets * 10);
+        document.getElementById('globalBadge').innerText = 'Safety Score: ' + score + '/100';
+      } catch (e) { document.getElementById('globalBadge').innerText = 'Safety Score: -- /100' }
+    }
+    computeGlobalBadge();
+    window.addEventListener('storage', computeGlobalBadge);
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
