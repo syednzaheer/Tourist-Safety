@@ -7,220 +7,109 @@
   <title>Police Dashboard | Smart Safety</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --bg-100: #f3f6f9;
-      --navy-800: #0b2545;
-      --emerald-500: #12a36c;
-      --emerald-600: #0e8b57;
-      --warning: #ffc107;
-      --danger: #dc3545;
-      --soft-border: rgba(11, 37, 69, 0.06);
-      --card-shadow: rgba(10, 25, 40, 0.12);
-      --radius-lg: 14px;
-      --trans-fast: 260ms;
-    }
-
-    body,
-    html {
-      margin: 0;
-      padding: 0;
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(180deg, var(--bg-100) 0%, #eef3f7 100%);
-      color: #0f1720;
-      line-height: 1.45;
-    }
-
-    a {
-      text-decoration: none !important;
-      color: inherit;
-    }
-
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-
-    /* Navbar */
-
-    .navbar {
-      background: linear-gradient(90deg, var(--navy-800), #153a5f);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-      box-shadow: 0 6px 18px rgba(8, 24, 45, 0.12);
-      padding: .6rem 1rem;
-    }
-
-    .navbar .navbar-brand {
-      font-weight: 600;
-      letter-spacing: .2px;
-      color: #e9f5f0;
-    }
-
-    .page-wrap {
-      max-width: 960px;
-      margin: 50px auto;
-      animation: appearUp .44s cubic-bezier(.2, .9, .2, 1) both;
-    }
-
-    .section-title {
-      margin-top: 36px;
-      margin-bottom: 18px;
-      font-weight: 600;
-    }
-
-    /* Tables */
-
-    table {
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.86));
-      border: 1px solid var(--soft-border);
-      box-shadow: 0 12px 32px var(--card-shadow);
-      transition: transform var(--trans-fast), box-shadow var(--trans-fast);
-    }
-
-    table:hover {
-      transform: translateY(-2px) scale(1.0);
-      box-shadow: 0 20px 40px rgba(11, 34, 68, 0.14);
-    }
-
-    tbody tr:hover {
-      background: rgba(18, 163, 108, 0.08);
-      transition: background var(--trans-fast);
-    }
-
-    /* Status */
-
-    .status-pill {
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      transition: all var(--trans-fast);
-    }
-
-    .status-open {
-      background: var(--danger);
-      color: #fff;
-    }
-
-    .status-progress {
-      background: var(--warning);
-      color: #000;
-    }
-
-    .status-resolved {
-      background: var(--emerald-500);
-      color: #fff;
-    }
-
-    /* SOS List */
-
-    #sosAlerts .list-group-item {
-      border-radius: var(--radius-lg);
-      margin-bottom: 8px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.86));
-      border: 1px solid var(--soft-border);
-      box-shadow: 0 8px 28px var(--card-shadow);
-      transition: transform var(--trans-fast), box-shadow var(--trans-fast);
-    }
-
-    #sosAlerts .list-group-item:hover {
-      transform: translateY(-2px) scale(1.01);
-      box-shadow: 0 18px 40px rgba(11, 34, 68, 0.14);
-    }
-
-    .sos-badge {
-      font-size: 0.9rem;
-      padding: 6px 12px;
-      border-radius: 12px;
-      background: #ffeded;
-      border: 1px solid #ffb3b3;
-    }
-
-    /* Animation */
-
-    @keyframes appearUp {
-      from {
-        opacity: 0;
-        transform: translateY(12px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  </style>
+  <!-- Premium Styles -->
+  <link href="css/style.css" rel="stylesheet">
 </head>
 
 <body>
 
   <!-- Navbar -->
-
-  <nav class="navbar navbar-dark bg-dark">
+  <nav class="navbar navbar-glass fixed-top">
     <div class="container-fluid">
-      <a class="navbar-brand" href="index.html">🏠 Home</a>
+      <a class="navbar-brand" href="index.html">⬅ Back to Home</a>
     </div>
   </nav>
 
-  <div class="container page-wrap">
-    <h2 class="mb-4">Police Dashboard</h2>
+  <div class="container" style="margin-top: 100px;">
+
+    <!-- Header -->
+    <div class="hero-card p-4 text-start mb-4 d-flex justify-content-between align-items-center flex-wrap">
+      <div>
+        <h2 class="mb-1 fw-bold">👮‍♂️ Police Dashboard</h2>
+        <p class="mb-0 text-white-50">Real-time incident monitoring & SOS alerts.</p>
+      </div>
+      <div class="text-end mt-3 mt-md-0">
+        <span class="badge bg-danger p-2 fs-6">Live System</span>
+      </div>
+    </div>
 
     <!-- INCIDENT REPORTS -->
-
-    <h4 class="section-title">Incident Reports</h4>
-    <div class="table-responsive">
-      <table class="table table-bordered table-striped align-middle">
-        <thead class="table-dark">
-          <tr>
-            <th>Location</th>
-            <th>Issue</th>
-            <th>Description</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="allReports"></tbody>
-      </table>
+    <div class="content-card mt-0">
+      <h4 class="mb-4" style="color: var(--navy-800);">Incident Reports</h4>
+      <div class="table-responsive">
+        <table class="table-glass">
+          <thead>
+            <tr>
+              <th>Location</th>
+              <th>Issue</th>
+              <th>Description</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="allReports"></tbody>
+        </table>
+      </div>
     </div>
 
     <!-- SOS ALERTS -->
-    <h4 class="section-title">SOS Alerts</h4>
-    <ul id="sosAlerts" class="list-group"></ul>
+    <div class="content-card">
+      <h4 class="mb-4 text-danger">🚨 Live SOS Feed</h4>
+      <ul id="sosAlerts" class="list-group"></ul>
+    </div>
+
   </div>
 
+  <script src="js/app.js"></script>
   <script>
     // Pull reports
     const reports = JSON.parse(localStorage.getItem("reports") || "[]");
     const tableBody = document.getElementById("allReports");
 
+    if (reports.length === 0) {
+      tableBody.innerHTML = "<tr><td colspan='4' class='text-center text-muted p-4'>No incidents reported yet.</td></tr>";
+    }
+
     reports.forEach(r => {
       const pillClass =
-        r.status === "Open" ? "status-pill status-open" :
-          r.status === "In Progress" ? "status-pill status-progress" :
-            "status-pill status-resolved";
+        r.status === "Open" ? "status-open" :
+          r.status === "In Progress" ? "status-progress" :
+            "status-resolved";
 
       tableBody.innerHTML += `
         <tr>
-          <td>${r.loc}</td>
+          <td><span class="fw-bold text-dark">${r.loc}</span></td>
           <td>${r.issue}</td>
-          <td>${r.desc}</td>
-          <td><span class="${pillClass}">${r.status}</span></td>
+          <td class="text-muted small">${r.desc}</td>
+          <td><span class="status-pill ${pillClass}">${r.status}</span></td>
         </tr>
       `;
     });
 
-    // Pull SOS Alerts
+    // Pull SOS Alerts & Global Alerts
     const sos = JSON.parse(localStorage.getItem("sosAlerts") || "[]");
+    const globalAlerts = JSON.parse(localStorage.getItem("alerts") || "[]");
+
     const sosList = document.getElementById("sosAlerts");
 
-    sos.forEach(alert => {
+    // Merge logic for demo
+    const allSos = [...globalAlerts, ...sos].slice(0, 10); // Show last 10
+
+    if (allSos.length === 0) {
+      sosList.innerHTML = "<li class='list-group-item text-center text-muted'>No SOS alerts in the system.</li>";
+    }
+
+    allSos.forEach(alert => {
+      // Handle both formats (string or object)
+      let text = typeof alert === 'string' ? alert : (alert.note || alert.type);
+      let time = alert.time ? new Date(alert.time).toLocaleTimeString() : '';
+
       sosList.innerHTML += `
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          <span>${alert}</span>
-          <span class="sos-badge">SOS</span>
+          <div>
+             <span class="fw-bold text-danger me-2">SOS</span>
+             <span>${text}</span>
+          </div>
+          <small class="text-muted">${time}</small>
         </li>
       `;
     });
