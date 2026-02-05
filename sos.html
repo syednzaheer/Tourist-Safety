@@ -5,88 +5,175 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Emergency Services - Neural Nexus</title>
+  <!-- Bootstrap & Fonts -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #f8f9fa;
-      padding-bottom: 40px;
-    }
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Premium Styles -->
+  <link href="css/style.css" rel="stylesheet">
 
-    h2,
-    h4 {
-      color: #2b4d66;
+  <style>
+    /* SOS Specific Styles */
+    .sos-container {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
 
     .card-sos {
-      max-width: 700px;
-      margin: 30px auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-    }
-
-    .btn-sos {
-      flex: 1;
-      min-width: 130px;
-      padding: 12px;
-      font-weight: 600;
-      border-radius: 10px;
-      transition: 0.2s;
-    }
-
-    .btn-sos:hover {
-      opacity: 0.9;
-    }
-
-    .voice-btn {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      padding: 40px;
+      border-radius: var(--radius-xl);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      max-width: 800px;
       width: 100%;
-      margin-top: 15px;
-      padding: 12px;
-      border-radius: 10px;
-      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      animation: floatUp 0.6s var(--ease-elastic);
     }
 
-    #voiceStatus {
-      margin-top: 10px;
-      font-style: italic;
-      color: #555;
+    .btn-sos-large {
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      border: none;
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s var(--ease-elastic);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-sos-large i {
+      font-size: 2rem;
+    }
+
+    .btn-sos-large:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-police {
+      background: linear-gradient(135deg, #1f2937, #111827);
+      color: #fff;
+    }
+
+    .btn-amb {
+      background: linear-gradient(135deg, #fbbf24, #d97706);
+      color: #fff;
+    }
+
+    .btn-fire {
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      color: #fff;
+    }
+
+    .btn-help {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+    }
+
+    .voice-btn-wrapper {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .voice-pulse {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--navy-800);
+      color: white;
+      border: none;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 0 0 0 rgba(7, 19, 42, 0.7);
+    }
+
+    .voice-pulse.listening {
+      background: #ef4444;
+      animation: pulse-red 1.5s infinite;
+    }
+
+    @keyframes pulse-red {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      }
+
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 20px rgba(239, 68, 68, 0);
+      }
+
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
     }
   </style>
 </head>
 
 <body>
-
   <!-- Navbar -->
-
-  <nav class="navbar navbar-dark bg-dark p-2 shadow-sm">
-    <div class="container">
-      <a class="navbar-brand" href="index.html">🏠 Home</a>
+  <nav class="navbar navbar-glass fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">⬅ Back to Home</a>
     </div>
   </nav>
 
-  <div class="card-sos text-center">
-    <h2>Emergency Services</h2>
-    <p>Click to alert or call the required emergency services.</p>
+  <div class="sos-container">
+    <div class="card-sos text-center">
+      <h2 class="display-5 fw-bold mb-2" style="color: var(--navy-900);">Emergency Services</h2>
+      <p class="text-muted mb-5">Tap a button below to instantly alert services.</p>
 
-    <div class="d-flex flex-wrap justify-content-center gap-3 mt-3">
-      <button class="btn btn-danger btn-sos" id="btnPolice">🚓 Police</button>
-      <button class="btn btn-warning btn-sos" id="btnAmb">🚑 Ambulance</button>
-      <button class="btn btn-primary btn-sos" id="btnFire">🔥 Fire</button>
-      <button class="btn btn-success btn-sos" id="btnHelp">📞 Tourist Helpline</button>
+      <div class="row g-3">
+        <div class="col-6 col-md-3">
+          <button class="btn btn-sos-large btn-police w-100" id="btnPolice">
+            <span>🚓</span> Police
+          </button>
+        </div>
+        <div class="col-6 col-md-3">
+          <button class="btn btn-sos-large btn-amb w-100" id="btnAmb">
+            <span>🚑</span> Ambulance
+          </button>
+        </div>
+        <div class="col-6 col-md-3">
+          <button class="btn btn-sos-large btn-fire w-100" id="btnFire">
+            <span>🔥</span> Fire
+          </button>
+        </div>
+        <div class="col-6 col-md-3">
+          <button class="btn btn-sos-large btn-help w-100" id="btnHelp">
+            <span>📞</span> Helpline
+          </button>
+        </div>
+      </div>
+
+      <div class="voice-btn-wrapper">
+        <h4 class="fw-bold mb-3">Voice SOS</h4>
+        <p class="small text-muted mb-4">Tap microphone and say "Help" or describe the emergency.</p>
+
+        <button class="voice-pulse" id="voiceBtn">🎙️</button>
+        <div id="voiceStatus" class="fw-bold text-primary"></div>
+      </div>
     </div>
-
-    <hr class="my-4">
-
-    <h4>Voice SOS</h4>
-    <p>Click the microphone and speak your message. The transcript will be sent as a voice SOS to the Police Dashboard.
-    </p>
-    <button class="btn btn-outline-secondary voice-btn" id="voiceBtn">🎙️ Start Voice SOS</button>
-    <div id="voiceStatus"></div>
   </div>
 
+  <!-- Scripts -->
+  <script src="js/app.js"></script>
   <script>
+    // Local SOS Logic utilizing the new 'toaster' from app.js
+
     function pushAlert(item) {
       const alerts = JSON.parse(localStorage.getItem('alerts') || '[]');
       alerts.unshift(item);
@@ -94,55 +181,66 @@
       window.dispatchEvent(new Event('storage'));
     }
 
+    const notify = (msg, type) => {
+      if (window.toaster) window.toaster.show(msg, type);
+      else alert(msg); // Fallback
+    };
+
     document.getElementById('btnPolice').addEventListener('click', () => {
-      pushAlert({ type: 'sos', subtype: 'police', time: new Date().toISOString(), note: 'Panic button pressed by user', location: '(demo) last-known: Charminar' });
-      alert('Dial 100 - Police (demo). Police dashboard notified.');
+      pushAlert({ type: 'sos', subtype: 'police', time: new Date().toISOString(), note: 'Panic button pressed', location: 'GPS: 17.3850, 78.4867' });
+      notify('Police notified! Unit dispatched to your location.', 'success');
     });
 
     document.getElementById('btnAmb').addEventListener('click', () => {
-      pushAlert({ type: 'sos', subtype: 'ambulance', time: new Date().toISOString(), note: 'Ambulance requested', location: '(demo)' });
-      alert('Dial 108 - Ambulance (demo).');
+      pushAlert({ type: 'sos', subtype: 'ambulance', time: new Date().toISOString(), note: 'Ambulance requested', location: 'GPS: 17.3850, 78.4867' });
+      notify('Ambulance on on the way!', 'warning');
     });
 
     document.getElementById('btnFire').addEventListener('click', () => {
-      pushAlert({ type: 'sos', subtype: 'fire', time: new Date().toISOString(), note: 'Fire service requested', location: '(demo)' });
-      alert('Dial 101 - Fire Service (demo).');
+      pushAlert({ type: 'sos', subtype: 'fire', time: new Date().toISOString(), note: 'Fire service requested', location: 'GPS: 17.3850, 78.4867' });
+      notify('Fire department alerted.', 'error');
     });
 
     document.getElementById('btnHelp').addEventListener('click', () => {
-      pushAlert({ type: 'info', time: new Date().toISOString(), note: 'Tourist Helpline called', phone: '1800-111-111' });
-      alert('Tourist Helpline: 1800-111-111 (demo).');
+      pushAlert({ type: 'info', time: new Date().toISOString(), note: 'Tourist Helpline called' });
+      notify('Calling Tourist Helpline (1800-111-111)...', 'info');
     });
 
-    // Voice SOS
-
+    // Voice SOS Logic
     const voiceBtn = document.getElementById('voiceBtn');
     const status = document.getElementById('voiceStatus');
-    let recognition;
+
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognition = new SR();
+      const recognition = new SR();
       recognition.lang = 'en-IN';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
 
-      recognition.onstart = () => status.innerText = 'Listening... Speak now';
-      recognition.onend = () => status.innerText = 'Stopped';
-      recognition.onerror = (e) => status.innerText = 'Error: ' + e.error;
+      recognition.onstart = () => {
+        status.innerText = 'Listening... Speak now';
+        voiceBtn.classList.add('listening');
+      };
+
+      recognition.onend = () => {
+        status.innerText = '';
+        voiceBtn.classList.remove('listening');
+      };
+
       recognition.onresult = (ev) => {
         const text = ev.results[0][0].transcript;
-        status.innerText = 'You said: ' + text;
         pushAlert({ type: 'voice-sos', time: new Date().toISOString(), note: text });
-        alert('Voice SOS sent (demo). Police dashboard notified.');
+        notify(`Voice SOS Sent: "${text}"`, 'success');
       };
+
+      recognition.onerror = (e) => {
+        status.innerText = 'Error: ' + e.error;
+        voiceBtn.classList.remove('listening');
+      };
+
+      voiceBtn.addEventListener('click', () => recognition.start());
     } else {
-      voiceBtn.disabled = true;
-      status.innerText = 'Voice SOS not supported in this browser (use Chrome).';
+      status.innerText = 'Voice not supported in this browser.';
     }
-
-    voiceBtn.addEventListener('click', () => { if (recognition) recognition.start(); });
   </script>
-
 </body>
 
 </html>
