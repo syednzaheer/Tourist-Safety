@@ -1,0 +1,71 @@
+[
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "bytes32", "name": "touristId", "type": "bytes32" },
+      { "indexed": false, "internalType": "uint256", "name": "tripStart", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "tripEnd", "type": "uint256" }
+    ],
+    "name": "IdentityIssued",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "bytes32", "name": "touristId", "type": "bytes32" }
+    ],
+    "name": "IdentityRevoked",
+    "type": "event"
+  },
+  {
+    "inputs": [{ "internalType": "bytes32", "name": "touristId", "type": "bytes32" }],
+    "name": "getIdentity",
+    "outputs": [
+      { "internalType": "address", "name": "issuer", "type": "address" },
+      { "internalType": "uint256", "name": "tripStart", "type": "uint256" },
+      { "internalType": "uint256", "name": "tripEnd", "type": "uint256" },
+      { "internalType": "bytes32", "name": "dataHash", "type": "bytes32" },
+      { "internalType": "bool", "name": "revoked", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "touristId", "type": "bytes32" },
+      { "internalType": "uint256", "name": "tripStart", "type": "uint256" },
+      { "internalType": "uint256", "name": "tripEnd", "type": "uint256" },
+      { "internalType": "bytes32", "name": "dataHash", "type": "bytes32" }
+    ],
+    "name": "issueIdentity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "bytes32", "name": "touristId", "type": "bytes32" }],
+    "name": "isValid",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "bytes32", "name": "touristId", "type": "bytes32" }],
+    "name": "revokeIdentity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

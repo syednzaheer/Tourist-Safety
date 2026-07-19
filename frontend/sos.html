@@ -63,41 +63,79 @@
   <!-- Scripts -->
   <script src="js/app.js"></script>
   <script>
-    // Local SOS Logic utilizing the new 'toaster' from app.js
-
-    function pushAlert(item) {
-      const alerts = JSON.parse(localStorage.getItem('alerts') || '[]');
-      alerts.unshift(item);
-      localStorage.setItem('alerts', JSON.stringify(alerts));
-      window.dispatchEvent(new Event('storage'));
-    }
+    const API_BASE = window.location.origin;
 
     const notify = (msg, type) => {
       if (window.toaster) window.toaster.show(msg, type);
-      else alert(msg); // Fallback
+      else alert(msg);
     };
 
-    document.getElementById('btnPolice').addEventListener('click', () => {
-      pushAlert({ type: 'sos', subtype: 'police', time: new Date().toISOString(), note: 'Panic button pressed', location: 'GPS: 17.3850, 78.4867' });
-      notify('Police notified! Unit dispatched to your location.', 'success');
-    });
+    function getTouristId() {
+      const id = localStorage.getItem('currentTouristId');
+      if (!id) {
+        notify('No active Tourist ID found. Register on the ID page first.', 'error');
+        return null;
+      }
+      return id;
+    }
 
-    document.getElementById('btnAmb').addEventListener('click', () => {
-      pushAlert({ type: 'sos', subtype: 'ambulance', time: new Date().toISOString(), note: 'Ambulance requested', location: 'GPS: 17.3850, 78.4867' });
-      notify('Ambulance on on the way!', 'warning');
-    });
+    // Real browser geolocation instead of a hardcoded coordinate.
+    function getPosition() {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error('Geolocation not supported in this browser'));
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          (err) => reject(err),
+          { enableHighAccuracy: true, timeout: 8000 }
+        );
+      });
+    }
 
-    document.getElementById('btnFire').addEventListener('click', () => {
-      pushAlert({ type: 'sos', subtype: 'fire', time: new Date().toISOString(), note: 'Fire service requested', location: 'GPS: 17.3850, 78.4867' });
-      notify('Fire department alerted.', 'error');
-    });
+    async function sendSOS(service) {
+      const touristId = getTouristId();
+      if (!touristId) return;
 
-    document.getElementById('btnHelp').addEventListener('click', () => {
-      pushAlert({ type: 'info', time: new Date().toISOString(), note: 'Tourist Helpline called' });
-      notify('Calling Tourist Helpline (1800-111-111)...', 'info');
-    });
+      let coords;
+      try {
+        coords = await getPosition();
+      } catch (e) {
+        notify('Could not get GPS location — allow location access and try again.', 'error');
+        return;
+      }
 
-    // Voice SOS Logic
+      try {
+        const res = await fetch(`${API_BASE}/api/sos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tourist_id: touristId, service, lat: coords.lat, lng: coords.lng })
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || 'SOS request failed');
+        }
+        const data = await res.json();
+        // Honest status: this logs the alert and, if Twilio is configured
+        // on the backend, sends a real SMS. It does not claim a unit has
+        // physically been dispatched — that's outside what this system does.
+        const statusText = data.sms_status === 'sent'
+          ? 'SOS logged and SMS sent to the dispatch number.'
+          : 'SOS logged on the incident dashboard (SMS not configured in this demo).';
+        notify(statusText, 'success');
+      } catch (e) {
+        notify('Error sending SOS: ' + e.message, 'error');
+      }
+    }
+
+    document.getElementById('btnPolice').addEventListener('click', () => sendSOS('police'));
+    document.getElementById('btnAmb').addEventListener('click', () => sendSOS('ambulance'));
+    document.getElementById('btnFire').addEventListener('click', () => sendSOS('fire'));
+    document.getElementById('btnHelp').addEventListener('click', () => sendSOS('helpline'));
+
+    // Voice SOS: browser speech recognition transcribes the request, then
+    // it's sent through the same real /api/sos call as the buttons.
     const voiceBtn = document.getElementById('voiceBtn');
     const status = document.getElementById('voiceStatus');
 
@@ -118,8 +156,8 @@
 
       recognition.onresult = (ev) => {
         const text = ev.results[0][0].transcript;
-        pushAlert({ type: 'voice-sos', time: new Date().toISOString(), note: text });
-        notify(`Voice SOS Sent: "${text}"`, 'success');
+        notify(`Heard: "${text}" — sending as helpline SOS`, 'info');
+        sendSOS('helpline');
       };
 
       recognition.onerror = (e) => {

@@ -1,6 +1,8 @@
 /**
- * Tourist Safety System - Premium Logic
- * Handles Navigation, Translations, and Notification System
+ * Shared frontend logic - sidebar nav, toast notifications, language switch.
+ * Loaded on every page. Nothing here talks to the backend; the pages that
+ * actually call the API (form.html, map.html, sos.html, dbpolice.html)
+ * have their own fetch calls inline.
  */
 
 /* =========================================
@@ -66,16 +68,12 @@ const toaster = {
 
         container.appendChild(toast);
 
-        // Trigger Animation (Next Frame)
+        // trigger animation next frame so the CSS transition actually fires
         requestAnimationFrame(() => {
             toast.classList.add('show');
         });
 
-        // Playsound effect (Optional, subtle)
-        // const audio = new Audio('assets/notification.mp3'); 
-        // audio.play().catch(e => {}); 
-
-        // Auto Dismiss
+        // auto dismiss
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 400); // Wait for transition
@@ -144,34 +142,7 @@ function initTranslations() {
 }
 
 
-/* =========================================
-   4. DATA/LOGIC (Safety Score)
-   ========================================= */
-function computeGlobalBadge() {
-    const badgeEl = document.getElementById('globalBadge');
-    if(!badgeEl) return;
-
-    try {
-        const alerts = JSON.parse(localStorage.getItem('alerts') || '[]');
-        // Count heavy incidents
-        const tickets = alerts.filter(a => a.type === 'sos' || a.type === 'anomaly').length;
-        
-        let score = Math.max(50, 95 - tickets * 10);
-        badgeEl.innerText = `Safety Score: ${score}/100`;
-        
-        // Color coding
-        if(score > 80) badgeEl.style.borderColor = 'var(--emerald-500)';
-        else if (score > 60) badgeEl.style.borderColor = '#fbbf24'; // yellow
-        else badgeEl.style.borderColor = '#ef4444'; // red
-
-    } catch (e) {
-        badgeEl.innerText = 'Safety Score: -- /100';
-    }
-}
-
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
     initTranslations();
-    computeGlobalBadge();
-    window.addEventListener('storage', computeGlobalBadge);
 });

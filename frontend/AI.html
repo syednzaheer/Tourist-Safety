@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Detection | Tourist Safety System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Premium Styles -->
+  <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-glass fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">⬅ Back to Home</a>
+    </div>
+  </nav>
+
+  <!-- Main AI Card -->
+  <div class="form-card text-center" style="margin-top: 120px; max-width: 520px;">
+    <h2 class="mb-3">🤖 AI Anomaly Detection</h2>
+    <p class="text-muted mb-4">
+      Runs your real recent location history through the backend's anomaly checks —
+      three explainable rules plus a trained IsolationForest model, not a canned demo.
+    </p>
+
+    <button onclick="runCheck()" class="btn btn-lg w-100" id="checkBtn"
+      style="background: var(--emerald-500); color: white; max-width: 320px;">Run Anomaly Check</button>
+
+    <div id="result" class="mt-4" style="min-height: 30px;"></div>
+
+    <hr class="my-4" style="opacity: 0.1">
+
+    <div class="text-start bg-light p-3 rounded-3" style="font-size: 0.9rem;">
+      <p class="mb-1"><strong>ℹ️ How it works:</strong></p>
+      <p class="mb-0 text-muted">
+        Pulls your last several location pings (from <a href="map.html">map.html</a>) and checks them for
+        prolonged inactivity, implausible speed between pings, repeated risk-zone entries, and an overall
+        movement-pattern score from a model trained on typical vs. unusual tourist movement. If you haven't
+        pinged a location yet, register on <a href="form.html">form.html</a> and ping a few points on the map
+        first — otherwise there's no history for it to check.
+      </p>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    const API_BASE = window.location.origin;
+
+    async function runCheck() {
+      const touristId = localStorage.getItem('currentTouristId');
+      const resultDiv = document.getElementById('result');
+      const btn = document.getElementById('checkBtn');
+
+      if (!touristId) {
+        resultDiv.innerHTML = "<span class='text-warning'>⚠️ No active Tourist ID found — register on the ID page first.</span>";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Checking...';
+      resultDiv.innerHTML = '';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/anomaly/check/${touristId}`, { method: 'POST' });
+        if (!res.ok) throw new Error(`Server responded ${res.status}`);
+        const data = await res.json();
+
+        if (data.findings.length === 0) {
+          resultDiv.innerHTML = "<span style='color: var(--emerald-600); font-weight: bold;'>🟢 Normal — no anomalies flagged in your recent movement.</span>";
+          if (window.toaster) window.toaster.show('Status: Normal', 'success');
+        } else {
+          const items = data.findings.map(f => `<li>${f}</li>`).join('');
+          resultDiv.innerHTML = `
+            <div style="color: #ef4444; font-weight: bold; margin-bottom: 8px;">🔴 ${data.findings.length} anomaly finding(s):</div>
+            <ul class="text-start" style="font-size: 0.95rem;">${items}</ul>
+          `;
+          if (window.toaster) window.toaster.show('Anomaly Detected', 'error');
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<span class='text-danger'>Couldn't reach the backend: ${err.message}</span>`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Anomaly Check';
+      }
+    }
+  </script>
+
+</body>
+
+</html>

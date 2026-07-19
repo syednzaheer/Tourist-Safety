@@ -117,55 +117,76 @@
   </div>
 
   <script>
+    const API_BASE = window.location.origin;
 
-    // Form Submission Handler
-
-    document.getElementById("touristForm").addEventListener("submit", function (event) {
+    // Form Submission Handler — calls the real backend, no fake txn hashes,
+    // no localStorage. The ID returned is a genuine server-issued,
+    // JWT-signed, time-bound identity — see /api/register in the backend.
+    document.getElementById("touristForm").addEventListener("submit", async function (event) {
       event.preventDefault();
+
       const name = document.getElementById("fullName").value.trim();
       const nationality = document.getElementById("nationality").value.trim();
       const itinerary = document.getElementById("itinerary").value.trim();
-      const emergency = document.getElementById("emergencyName").value.trim() + " (" + document.getElementById("emergencyPhone").value.trim() + ")";
+      const emergencyName = document.getElementById("emergencyName").value.trim();
+      const emergencyPhone = document.getElementById("emergencyPhone").value.trim();
       const arrival = document.getElementById("arrivalDate").value;
       const departure = document.getElementById("departureDate").value;
-      const idType = document.getElementById("idType").value.trim();
-      const idNumber = document.getElementById("idNumber").value.trim();
-      const accommodation = document.getElementById("accommodation").value.trim();
-      const tracking = document.getElementById("tracking").value;
 
-      function randHex(len) { let s = ''; const hex = '0123456789abcdef'; for (let i = 0; i < len; i++) s += hex[Math.floor(Math.random() * hex.length)]; return s; }
-      const txn = '0x' + randHex(8) + '-' + Date.now().toString(36);
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Issuing ID...';
 
-      let score = 90;
-      const lower = itinerary.toLowerCase();
-      const riskyKeywords = ['charminar', 'golconda', 'old city', 'police', 'unsafe', 'unsafe zone', 'forest', 'cave'];
-      riskyKeywords.forEach(k => { if (lower.includes(k)) score -= 20; });
-      if (tracking === 'no') score -= 10;
-      score = Math.max(30, score);
+      try {
+        const res = await fetch(`${API_BASE}/api/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            phone: emergencyPhone || '0000000000',
+            nationality,
+            itinerary,
+            emergency_contact_name: emergencyName,
+            emergency_contact_phone: emergencyPhone,
+            trip_start: new Date(arrival).toISOString(),
+            trip_end: new Date(departure).toISOString(),
+          })
+        });
 
-      const idObj = { name, nationality, itinerary, emergency, arrival, departure, idType, idNumber, accommodation, tracking, issuedAt: new Date().toISOString(), txn, safetyScore: score };
-      const arr = JSON.parse(localStorage.getItem('touristIDs') || '[]');
-      arr.push(idObj);
-      localStorage.setItem('touristIDs', JSON.stringify(arr));
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || 'Registration failed');
+        }
 
-      document.getElementById('previewName').innerText = name;
-      document.getElementById('previewNationality').innerText = nationality;
-      document.getElementById('previewTrip').innerText = itinerary;
-      document.getElementById('previewEmergency').innerText = emergency;
-      document.getElementById('previewValidity').innerText = arrival + ' → ' + departure;
-      document.getElementById('previewTxn').innerText = txn;
-      document.getElementById('previewScore').innerText = score + '/100';
-      document.getElementById('previewQR').src = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent('TouristID:' + txn);
-      document.getElementById('idCard').style.display = 'block';
+        const data = await res.json();
 
-      const alerts = JSON.parse(localStorage.getItem('alerts') || '[]');
-      alerts.unshift({ type: 'issuance', time: new Date().toISOString(), name, txn, note: 'Digital ID issued (mock blockchain)' });
-      localStorage.setItem('alerts', JSON.stringify(alerts));
+        document.getElementById('previewName').innerText = data.name;
+        document.getElementById('previewNationality').innerText = data.nationality || '-';
+        document.getElementById('previewTrip').innerText = data.itinerary || '-';
+        document.getElementById('previewEmergency').innerText = emergencyName + ' (' + emergencyPhone + ')';
+        document.getElementById('previewValidity').innerText = arrival + ' → ' + departure;
+        document.getElementById('previewTxn').innerText = data.id;
+        document.getElementById('previewScore').innerText = 'Tracked live via geofence + anomaly checks';
+        document.getElementById('previewQR').src = 'data:image/png;base64,' + data.qr_code_base64;
+        document.getElementById('idCard').style.display = 'block';
 
-      alert('Tourist ID issued (demo). Blockchain Txn: ' + txn);
-      window.dispatchEvent(new Event('storage'));
+        // Store only the ID + token locally so other pages (SOS, map check-in)
+        // in this demo can act as this tourist. This is session convenience,
+        // not the source of truth — the backend DB is.
+        localStorage.setItem('currentTouristId', data.id);
+        localStorage.setItem('currentTouristToken', data.token);
+
+        if (window.toaster) toaster.show('Tourist ID issued: ' + data.id, 'success');
+      } catch (err) {
+        if (window.toaster) toaster.show('Error: ' + err.message, 'error');
+        else alert('Error: ' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Submit Application';
+      }
     });
   </script>
+  <script src="js/app.js"></script>
 
 </body>
 

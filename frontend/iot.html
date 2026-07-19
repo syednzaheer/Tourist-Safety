@@ -96,14 +96,57 @@
 
   <script src="js/app.js"></script>
   <script>
-    // Mock IoT Logic
-    function triggerIoTSOS(device) {
-      if (window.toaster) window.toaster.show(`SOS triggered via ${device.toUpperCase()}`, "error");
+    const API_BASE = window.location.origin;
 
-      // Log to system
-      const alerts = JSON.parse(localStorage.getItem('alerts') || '[]');
-      alerts.unshift({ type: `IoT Alert (${device})`, time: new Date().toISOString(), note: 'Hardware Panic Button Pressed' });
-      localStorage.setItem('alerts', JSON.stringify(alerts));
+    const notify = (msg, type) => {
+      if (window.toaster) window.toaster.show(msg, type);
+      else alert(msg);
+    };
+
+    function getPosition() {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error('Geolocation not supported in this browser'));
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          (err) => reject(err),
+          { enableHighAccuracy: true, timeout: 8000 }
+        );
+      });
+    }
+
+    // There's no actual hardware band here - this simulates what a real
+    // band's firmware would do on a panic-button press: hit the same
+    // /api/sos endpoint the in-app SOS page uses. No separate fake
+    // "IoT alert" log that the dashboard never reads from.
+    async function triggerIoTSOS(device) {
+      const touristId = localStorage.getItem('currentTouristId');
+      if (!touristId) {
+        notify('No active Tourist ID found. Register on the ID page first.', 'error');
+        return;
+      }
+
+      let coords;
+      try {
+        coords = await getPosition();
+      } catch (e) {
+        notify('Could not get GPS location — allow location access and try again.', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/sos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tourist_id: touristId, service: 'police', lat: coords.lat, lng: coords.lng })
+        });
+        if (!res.ok) throw new Error('SOS request failed');
+        notify(`Panic button (${device}) logged a real SOS on the incident dashboard.`, 'success');
+      } catch (e) {
+        notify('Error sending SOS: ' + e.message, 'error');
+      }
     }
 
     function toggleTracking(device) {
@@ -112,11 +155,11 @@
       if (el.innerText === 'Offline') {
         el.innerText = 'Live Tracking';
         el.className = 'status-pill status-safe badge bg-success';
-        if (window.toaster) window.toaster.show(`${device} Tracking Active`, "success");
+        notify(`${device} Tracking Active`, "success");
       } else {
         el.innerText = 'Offline';
         el.className = 'status-pill status-off badge bg-secondary';
-        if (window.toaster) window.toaster.show(`${device} Tracking Stopped`, "info");
+        notify(`${device} Tracking Stopped`, "info");
       }
     }
   </script>

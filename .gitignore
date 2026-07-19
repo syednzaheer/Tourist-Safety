@@ -1,10 +1,5 @@
-# OS generated files
-.DS_Store
-Thumbs.db
-Desktop.ini
-
-# Logs
-*.log
-
-# Dependency directories (if any in future)
-node_modules/
+venv/
+__pycache__/
+*.pyc
+*.db
+.env

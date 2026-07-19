@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Police Dashboard | Smart Safety</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <!-- Premium Styles -->
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    #dashMap { height: 360px; border-radius: 14px; margin-bottom: 1.5rem; }
+    #loginGate { max-width: 420px; margin: 140px auto 0; }
+    #wsStatus.live { color: #22c55e; }
+    #wsStatus.polling { color: #fbbf24; }
+    #wsStatus.offline { color: #ef4444; }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-glass fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">⬅ Back to Home</a>
+      <span id="officerBadge" class="text-white-50 small d-none"></span>
+    </div>
+  </nav>
+
+  <!-- Login gate -->
+  <div id="loginGate" class="content-card">
+    <h4 class="mb-3">Officer Login</h4>
+    <p class="small text-muted">Demo credentials seeded on first run: badge <code>ADMIN001</code>, password from the
+      console log the first time the backend starts (or set your own in the officers table).</p>
+    <div class="mb-2">
+      <input id="badgeIdInput" class="form-control" placeholder="Badge ID" autocomplete="username">
+    </div>
+    <div class="mb-3">
+      <input id="passwordInput" type="password" class="form-control" placeholder="Password" autocomplete="current-password">
+    </div>
+    <button id="loginBtn" class="btn btn-primary w-100">Log In</button>
+    <div id="loginError" class="text-danger small mt-2"></div>
+  </div>
+
+  <!-- Dashboard (hidden until logged in) -->
+  <div id="dashboardContent" class="container d-none" style="margin-top: 100px;">
+
+    <div class="hero-card p-4 text-start mb-4 d-flex justify-content-between align-items-center flex-wrap">
+      <div>
+        <h2 class="mb-1 fw-bold">👮‍♂️ Police Dashboard</h2>
+        <p class="mb-0 text-white-50">Real-time incident monitoring & SOS alerts.</p>
+      </div>
+      <div class="text-end mt-3 mt-md-0">
+        <span id="wsStatus" class="badge bg-dark p-2 fs-6">connecting…</span>
+        <button id="logoutBtn" class="btn btn-sm btn-outline-light ms-2">Log Out</button>
+      </div>
+    </div>
+
+    <div class="content-card mt-0">
+      <h4 class="mb-3" style="color: var(--navy-800);">Live Map & Heatmap</h4>
+      <div id="dashMap"></div>
+    </div>
+
+    <div class="content-card">
+      <h4 class="mb-4" style="color: var(--navy-800);">Live Tourist Locations</h4>
+      <div class="table-responsive">
+        <table class="table-glass">
+          <thead>
+            <tr>
+              <th>Tourist</th>
+              <th>Last Position</th>
+              <th>Last Seen</th>
+            </tr>
+          </thead>
+          <tbody id="liveLocations"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="content-card">
+      <h4 class="mb-4 text-danger">🚨 Live Alert Feed</h4>
+      <p class="small text-muted">Geofence entries, rule-based anomaly flags, ML pattern flags, and SOS requests.</p>
+      <ul id="alertsList" class="list-group"></ul>
+    </div>
+
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    const API_BASE = window.location.origin;
+    const WS_BASE = API_BASE.replace(/^http/, 'ws');
+
+    let officerToken = localStorage.getItem('officer_token');
+    let officerName = localStorage.getItem('officer_name');
+    let ws = null;
+    let pollTimer = null;
+    let map, heatLayer;
+
+    function authHeaders() {
+      return { 'Authorization': `Bearer ${officerToken}` };
+    }
+
+    function showDashboard() {
+      document.getElementById('loginGate').classList.add('d-none');
+      document.getElementById('dashboardContent').classList.remove('d-none');
+      const badge = document.getElementById('officerBadge');
+      badge.textContent = `Logged in as ${officerName}`;
+      badge.classList.remove('d-none');
+      initMap();
+      connectLive();
+    }
+
+    function showLogin(message) {
+      if (ws) { ws.close(); ws = null; }
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+      officerToken = null;
+      localStorage.removeItem('officer_token');
+      localStorage.removeItem('officer_name');
+      document.getElementById('dashboardContent').classList.add('d-none');
+      document.getElementById('officerBadge').classList.add('d-none');
+      document.getElementById('loginGate').classList.remove('d-none');
+      if (message) document.getElementById('loginError').textContent = message;
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const badge_id = document.getElementById('badgeIdInput').value.trim();
+      const password = document.getElementById('passwordInput').value;
+      const errEl = document.getElementById('loginError');
+      errEl.textContent = '';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ badge_id, password })
+        });
+        if (!res.ok) {
+          errEl.textContent = 'Invalid badge ID or password.';
+          return;
+        }
+        const data = await res.json();
+        officerToken = data.token;
+        officerName = data.name;
+        localStorage.setItem('officer_token', officerToken);
+        localStorage.setItem('officer_name', officerName);
+        showDashboard();
+      } catch (e) {
+        errEl.textContent = 'Could not reach the backend: ' + e.message;
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => showLogin());
+
+    function initMap() {
+      if (map) return;
+      map = L.map('dashMap').setView([17.3850, 78.4867], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+      heatLayer = L.heatLayer([], { radius: 30, blur: 20 }).addTo(map);
+    }
+
+    function renderSnapshot(snapshot) {
+      const { alerts, live_locations } = snapshot;
+
+      // Live locations table
+      const locBody = document.getElementById('liveLocations');
+      if (live_locations.length === 0) {
+        locBody.innerHTML = "<tr><td colspan='3' class='text-center text-muted p-4'>No tourists have checked in yet.</td></tr>";
+      } else {
+        locBody.innerHTML = live_locations.map(l => `
+          <tr>
+            <td class="fw-bold text-dark">${l.name}</td>
+            <td>${l.lat.toFixed(5)}, ${l.lng.toFixed(5)}</td>
+            <td class="text-muted small">${new Date(l.recorded_at + 'Z').toLocaleTimeString()}</td>
+          </tr>
+        `).join('');
+      }
+
+      // Heatmap: weight tourist positions + alert positions together, so
+      // clusters of activity AND clusters of incidents both show up
+      if (heatLayer) {
+        const points = [
+          ...live_locations.map(l => [l.lat, l.lng, 0.5]),
+          ...alerts.filter(a => a.lat && a.lng).map(a => [a.lat, a.lng, 1.0]),
+        ];
+        heatLayer.setLatLngs(points);
+      }
+
+      // Alerts feed
+      const alertsList = document.getElementById('alertsList');
+      if (alerts.length === 0) {
+        alertsList.innerHTML = "<li class='list-group-item text-center text-muted'>No alerts in the system yet.</li>";
+      } else {
+        const typeColor = { sos: 'text-danger', geofence: 'text-warning', inactivity: 'text-secondary', deviation: 'text-warning', ml_pattern: 'text-info' };
+        alertsList.innerHTML = alerts.map(a => `
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <span class="fw-bold ${typeColor[a.alert_type] || ''} me-2 text-uppercase">${a.alert_type}</span>
+              <span>${a.reason}</span>
+              <span class="text-muted small">— ${a.tourist_name}</span>
+            </div>
+            <div class="text-end">
+              <small class="text-muted d-block">${new Date(a.created_at + 'Z').toLocaleTimeString()}</small>
+              <button class="btn btn-sm btn-outline-success mt-1" onclick="resolveAlert(${a.id})">Resolve</button>
+            </div>
+          </li>
+        `).join('');
+      }
+    }
+
+    async function resolveAlert(alertId) {
+      await fetch(`${API_BASE}/api/dashboard/alerts/${alertId}/resolve`, {
+        method: 'POST',
+        headers: authHeaders()
+      });
+      // WS push will refresh within a few seconds; if we're on the
+      // polling fallback, refresh immediately instead of waiting
+      if (!ws || ws.readyState !== WebSocket.OPEN) loadSnapshotOnce();
+    }
+
+    async function loadSnapshotOnce() {
+      try {
+        const [alertsRes, locationsRes] = await Promise.all([
+          fetch(`${API_BASE}/api/dashboard/alerts?limit=20`, { headers: authHeaders() }),
+          fetch(`${API_BASE}/api/dashboard/live-locations`, { headers: authHeaders() })
+        ]);
+        if (alertsRes.status === 401 || locationsRes.status === 401) {
+          showLogin('Session expired — please log in again.');
+          return;
+        }
+        renderSnapshot({ alerts: await alertsRes.json(), live_locations: await locationsRes.json() });
+      } catch (e) {
+        console.error('Dashboard poll failed', e);
+      }
+    }
+
+    function setStatus(text, cls) {
+      const el = document.getElementById('wsStatus');
+      el.textContent = text;
+      el.className = `badge p-2 fs-6 ${cls}`;
+    }
+
+    // WebSocket is the primary path — the backend pushes a fresh snapshot
+    // every few seconds. If it can't connect (older browser, proxy that
+    // blocks upgrades, whatever), fall back to plain HTTP polling so the
+    // dashboard still works either way.
+    function connectLive() {
+      try {
+        ws = new WebSocket(`${WS_BASE}/api/dashboard/ws?token=${encodeURIComponent(officerToken)}`);
+
+        ws.onopen = () => setStatus('● live', 'live');
+        ws.onmessage = (event) => renderSnapshot(JSON.parse(event.data));
+        ws.onclose = (event) => {
+          if (event.code === 4401) {
+            showLogin('Session expired — please log in again.');
+            return;
+          }
+          setStatus('● polling (ws lost)', 'polling');
+          startPollingFallback();
+        };
+        ws.onerror = () => setStatus('● polling (ws error)', 'polling');
+      } catch (e) {
+        setStatus('● polling', 'polling');
+        startPollingFallback();
+      }
+    }
+
+    function startPollingFallback() {
+      if (pollTimer) return;
+      loadSnapshotOnce();
+      pollTimer = setInterval(loadSnapshotOnce, 10000);
+    }
+
+    if (officerToken) {
+      showDashboard();
+    }
+  </script>
+</body>
+
+</html>

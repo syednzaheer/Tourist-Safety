@@ -35,11 +35,11 @@
         <label for="issue" class="form-label fw-bold">⚠️ Type of Issue</label>
         <select id="issue" class="form-select" required>
           <option value="">Select Category...</option>
-          <option>Theft / Lost Item</option>
-          <option>Harassment / Safety</option>
-          <option>Medical Emergency</option>
-          <option>Scam / Fraud</option>
-          <option>Other</option>
+          <option value="theft">Theft / Lost Item</option>
+          <option value="harassment">Harassment / Safety</option>
+          <option value="medical">Medical Emergency</option>
+          <option value="scam">Scam / Fraud</option>
+          <option value="other">Other</option>
         </select>
       </div>
 
@@ -56,7 +56,9 @@
 
   <script src="js/app.js"></script>
   <script>
-    document.getElementById("reportForm").addEventListener("submit", function (e) {
+    const API_BASE = window.location.origin;
+
+    document.getElementById("reportForm").addEventListener("submit", async function (e) {
       e.preventDefault();
       const loc = document.getElementById("location").value.trim();
       const issue = document.getElementById("issue").value;
@@ -67,19 +69,45 @@
         return;
       }
 
-      let reports = JSON.parse(localStorage.getItem("reports") || "[]");
-      reports.push({ loc, issue, desc, status: "Open", reportedAt: new Date().toISOString() });
-      localStorage.setItem("reports", JSON.stringify(reports));
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
 
-      if (window.toaster) {
-        window.toaster.show("Incident Reported Successfully", "success");
-      } else {
-        alert("Incident Reported!");
+      const touristId = localStorage.getItem('currentTouristId') || null;
+
+      const payload = {
+        tourist_id: touristId,
+        category: issue,
+        description: `[${loc}] ${desc}`,
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/api/reports`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error(`Server responded ${res.status}`);
+
+        if (window.toaster) {
+          window.toaster.show("Incident Reported Successfully", "success");
+        } else {
+          alert("Incident Reported!");
+        }
+
+        setTimeout(() => {
+          window.location.href = "bdtourist.html";
+        }, 1500);
+      } catch (err) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Report';
+        if (window.toaster) {
+          window.toaster.show("Couldn't submit — check your connection and try again.", "danger");
+        } else {
+          alert("Failed to submit report: " + err.message);
+        }
       }
-
-      setTimeout(() => {
-        window.location.href = "bdtourist.html";
-      }, 1500);
     });
   </script>
 
